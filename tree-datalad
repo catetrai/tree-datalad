@@ -1,0 +1,67 @@
+#!/usr/bin/env bash
+
+function usage() {
+    cat <<EOF
+
+Usage: $(basename "$0") [-h] [TREE_OPTS ...]
+
+Run 'tree' command and mark directories that are DataLad datasets.
+Takes any options to be passed to 'tree'.
+
+Options:
+    [-h]                show help
+    [TREE_OPTS ...]     options to be passed to tree command
+
+EOF
+} >&2
+
+if [ "$1" = '-h' ]; then
+    usage
+    exit 0
+fi
+
+# marker to append to the line of 'tree' output if it is a dataset
+ds_marker='  <--[DS]'
+
+# check if 'tree' was called with option '-f' (to print full path)
+# note the quick'n'dirty parsing of single option
+has_full_path=false
+if echo "$@" | grep -qE '^-f| +-f|^-[^- ]+f| +-[^- ]+f'; then
+    has_full_path=true
+fi
+
+# run 'tree' with '-f' option (print full paths)
+# and transform each line
+tree -f "$@" |
+while IFS=$'\n' read -r line; do
+    # extract file/directory path
+    # TODO: will fail if path has spaces :(
+    path="$(
+        echo "$line" |
+            sed 's/\x1B\[[0-9;]\{1,\}[A-Za-z]//g' |  # strip color codes
+            sed -E 's/\/$//g' |  # strip directory suffix '/' (if tree -F)
+            sed -E 's/[0-9]+ directories, [0-9]+ files//g' |  # strip report line
+            sed -E 's/^.* ([^ ]+)[/=*>|]?$/\1/g'  # extract path
+    )"
+
+    # if there's no path (e.g. whitespace), just print raw tree output
+    if ! [ -e "$path" ]; then
+        echo "${line}"
+        continue
+    fi
+
+    # if is dataset, set the DS marker
+    marker=''
+    if [ -f "$path"/.datalad/config ]; then
+        marker="$ds_marker"
+    fi
+
+    if $has_full_path; then
+        echo "${line}${marker}"
+    else
+        # compute the basename to revert the effect of '-f'
+        # escape dots so they are treated as literals in the next sed command
+        path_for_sed="$(echo $path | sed 's|\.|\\\.|g')"
+        echo "${line}${marker}" | sed "s|$path_for_sed|$(basename $path_for_sed)|g"
+    fi
+done
