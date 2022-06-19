@@ -26,14 +26,14 @@ fail() {
 }
 
 # Test that output differs from output of 'tree' only by the marker
-if [[ "$(tree "$@")" = "$(tree-datalad "$@" | sed -E "s/$marker_regex//g")" ]]; then
+if [[ "$(tree "${opts[@]}")" = "$(tree-datalad "${opts[@]}" | sed -E "s/$marker_regex//g")" ]]; then
     pass "stripped output of tree-datalad is identical to output of tree"
 else
     fail "stripped output of tree-datalad differs from output of tree"
 fi
 
 # Test that dataset detection does not change if using short or full paths
-if [[ "$(tree-datalad "$@" | grep -noE "$marker_regex")" = "$(tree-datalad -f "$@" | grep -noE "$marker_regex")" ]]; then
+if [[ "$(tree-datalad "${opts[@]}" | grep -noE "$marker_regex")" = "$(tree-datalad -f "${opts[@]}" | grep -noE "$marker_regex")" ]]; then
     pass "dataset markers are identical with short or full paths (-f)"
 else
     fail "dataset markers differ when using short or full paths (-f)"
@@ -41,7 +41,7 @@ fi
 
 # Test dataset detection by comparing with datalad command
 # To skip the full path extraction, we force the '-f' option to show full paths
-tree-datalad -f "$@" |
+tree-datalad -f "${opts[@]}" |
 while IFS=$'\n' read -r line; do
     path="$(echo "$line" |
         sed 's/\x1B\[[0-9;]\{1,\}[A-Za-z]//g' |  # strip color codes
