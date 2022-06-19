@@ -12,7 +12,7 @@ has_ds_marker() {
     echo "$1" | grep -qE "$marker_regex"
 }
 
-# Test that output differs from 'tree' only by the marker
+# Test that output differs from output of 'tree' only by the marker
 if [[ "$(tree "$@")" = "$(tree-datalad "$@" | sed -E "s/$marker_regex//g")" ]]; then
     echo "[opts='$*'] [OK]   stripped output of tree-datalad is identical to output of tree"
 else
