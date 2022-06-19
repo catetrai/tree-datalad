@@ -18,54 +18,65 @@ Options:
 EOF
 } >&2
 
-if [ "$1" = '-h' ]; then
-    usage
-    exit 0
+extract_path() {
+    # extract file/directory path from line of 'tree' output
+    echo "$1" |
+        sed 's/\x1B\[[0-9;]\{1,\}[A-Za-z]//g' |  # strip color codes
+        sed -E 's/ -> .*$//g' |  # strip resolved symlink
+        sed -E 's/\/$//g' |  # strip directory suffix '/' (if tree -F)
+        sed -E 's/[0-9]+ directories, [0-9]+ files//g' |  # strip report line
+        sed -E 's/^.*[-─]{2} \[.*\]  (.*)$/\1/g' |  # for tree options with '[]' section
+        sed -E 's/^.*[-─]{2} (.*)$/\1/g'  # for all other tree options
+}
+
+run() {
+    if [[ "$1" = '-h' ]]; then
+        usage
+        exit 0
+    fi
+
+    # marker to append to the line of 'tree' output if it is a dataset
+    ds_marker='  <--[DS]'
+
+    # check if 'tree' was called with option '-f' (to print full path)
+    # note the quick'n'dirty parsing of single option
+    has_full_path=false
+    if echo "$@" | grep -qE '^-f| +-f|^-[^- ]+f| +-[^- ]+f'; then
+        has_full_path=true
+    fi
+
+    # run 'tree' with '-f' option (print full paths)
+    # and transform each line
+    tree -f "$@" |
+    while IFS=$'\n' read -r line; do
+        # extract file/directory path
+        path="$(extract_path "$line")"
+
+        # if there's no path (e.g. whitespace), just print raw tree output
+        if ! [[ -e "$path" ]]; then
+            echo "$line"
+            continue
+        fi
+
+        # if is dataset, set the DS marker
+        marker=''
+        if [[ -f "$path"/.datalad/config ]]; then
+            marker="$ds_marker"
+        fi
+
+        if $has_full_path; then
+            echo "${line}${marker}"
+        else
+            # replace with the basename to revert the effect of '-f'
+            path_basename="$(basename $path)"
+            echo "${line//$path/$path_basename}${marker}"
+        fi
+    done
+}
+
+# If the script is being executed (not sourced), run main function
+# If it is sourced, will only export functions without running main
+# see: https://stackoverflow.com/a/2942183
+if [[ "$(basename "$0")" = "tree-datalad" ]]; then
+    run "$@"
 fi
-
-# marker to append to the line of 'tree' output if it is a dataset
-ds_marker='  <--[DS]'
-
-# check if 'tree' was called with option '-f' (to print full path)
-# note the quick'n'dirty parsing of single option
-has_full_path=false
-if echo "$@" | grep -qE '^-f| +-f|^-[^- ]+f| +-[^- ]+f'; then
-    has_full_path=true
-fi
-
-# run 'tree' with '-f' option (print full paths)
-# and transform each line
-tree -f "$@" |
-while IFS=$'\n' read -r line; do
-    # extract file/directory path
-    # TODO: will fail if path has spaces :(
-    path="$(
-        echo "$line" |
-            sed 's/\x1B\[[0-9;]\{1,\}[A-Za-z]//g' |  # strip color codes
-            sed -E 's/ -> .*$//g' |  # strip resolved symlink
-            sed -E 's/\/$//g' |  # strip directory suffix '/' (if tree -F)
-            sed -E 's/[0-9]+ directories, [0-9]+ files//g' |  # strip report line
-            sed -E 's/^.*[-─]{2} \[.*\]  (.*)$/\1/g' |  # for tree options with '[]' section
-            sed -E 's/^.*[-─]{2} (.*)$/\1/g'  # for all other tree options
-    )"
-
-    # if there's no path (e.g. whitespace), just print raw tree output
-    if ! [[ -e "$path" ]]; then
-        echo "${line}"
-        continue
-    fi
-
-    # if is dataset, set the DS marker
-    marker=''
-    if [[ -f "$path"/.datalad/config ]]; then
-        marker="$ds_marker"
-    fi
-
-    if $has_full_path; then
-        echo "${line}${marker}"
-    else
-        # replace with the basename to revert the effect of '-f'
-        path_basename="$(basename $path)"
-        echo "${line//$path/$path_basename}${marker}"
-    fi
-done
