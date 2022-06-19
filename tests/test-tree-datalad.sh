@@ -21,6 +21,13 @@ fi
 
 # Test dataset detection: compare with datalad command
 tree-datalad "$@" |
+# Test that dataset detection does not change if using short or full paths
+if [[ "$(tree-datalad "$@" | grep -noE "$marker_regex")" = "$(tree-datalad -f "$@" | grep -noE "$marker_regex")" ]]; then
+    echo "[opts='$*'] [OK]   dataset markers are identical with short or full paths (-f)"
+else
+    >&2 echo "[opts='$*'] [FAIL] dataset markers differ when using short or full paths (-f)"
+fi
+
 while IFS=$'\n' read -r line; do
     path="$(echo "$line" |
         sed 's/\x1B\[[0-9;]\{1,\}[A-Za-z]//g' |  # strip color codes
