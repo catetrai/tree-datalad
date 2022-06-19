@@ -61,9 +61,8 @@ while IFS=$'\n' read -r line; do
     if $has_full_path; then
         echo "${line}${marker}"
     else
-        # compute the basename to revert the effect of '-f'
-        # escape dots so they are treated as literals in the next sed command
-        path_for_sed="$(echo $path | sed 's|\.|\\\.|g')"
-        echo "${line}${marker}" | sed "s|$path_for_sed|$(basename $path_for_sed)|g"
+        # replace with the basename to revert the effect of '-f'
+        path_basename="$(basename $path)"
+        echo "${line//$path/$path_basename}${marker}"
     fi
 done
