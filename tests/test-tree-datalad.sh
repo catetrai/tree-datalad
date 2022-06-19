@@ -3,6 +3,9 @@
 set -euo pipefail
 
 opts=("$@")
+# import functions from tree-datalad by sourcing the script
+source tree-datalad
+
 marker_regex='  <--\[DS\]$'
 exit_code=0
 
@@ -43,13 +46,7 @@ fi
 # To skip the full path extraction, we force the '-f' option to show full paths
 tree-datalad -f "${opts[@]}" |
 while IFS=$'\n' read -r line; do
-    path="$(echo "$line" |
-        sed 's/\x1B\[[0-9;]\{1,\}[A-Za-z]//g' |  # strip color codes
-        sed -E 's/\/$//g' |  # strip directory suffix '/' (if tree -F)
-        sed -E 's/[0-9]+ directories, [0-9]+ files//g' |  # strip report line
-        sed -E "s/$marker_regex//g" |  # strip marker
-        sed -E 's/^.*[-─]{2} \[.*\]  (.*)$/\1/g' |
-        sed -E 's/^.*[-─]{2} (.*)$/\1/g')"
+    path="$(extract_path "$line" | sed -E "s/$marker_regex//g")"
 
     if [[ -z $path ]]; then
         continue
