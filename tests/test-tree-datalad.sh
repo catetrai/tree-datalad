@@ -35,7 +35,8 @@ while IFS=$'\n' read -r line; do
         sed -E 's/\/$//g' |  # strip directory suffix '/' (if tree -F)
         sed -E 's/[0-9]+ directories, [0-9]+ files//g' |  # strip report line
         sed -E "s/$marker_regex//g" |  # strip marker
-        sed -E 's/^.* ([^ ]+)[/=*>|]?$/\1/g')"
+        sed -E 's/^.*[-─]{2} \[.*\]  (.*)$/\1/g' |
+        sed -E 's/^.*[-─]{2} (.*)$/\1/g')"
 
     if [[ -z $path ]]; then
         continue
