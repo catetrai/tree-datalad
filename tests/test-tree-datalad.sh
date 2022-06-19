@@ -16,7 +16,7 @@ has_ds_marker() {
 if [[ "$(tree "$@")" = "$(tree-datalad "$@" | sed -E "s/$marker_regex//g")" ]]; then
     echo "[opts='$*'] [OK]   stripped output of tree-datalad is identical to output of tree"
 else
-    echo "[opts='$*'] [FAIL] stripped output of tree-datalad differs from output of tree"
+    >&2 echo "[opts='$*'] [FAIL] stripped output of tree-datalad differs from output of tree"
 fi
 
 # Test dataset detection: compare with datalad command
@@ -33,13 +33,13 @@ while IFS=$'\n' read -r line; do
         continue
     fi
 
-    if is_dataset "$path" && ! has_ds_marker "$line"; then
-        echo "[opts='$*'] [FAIL] '$path' is dataset but has no DS marker"
-    elif ! is_dataset "$path" && has_ds_marker "$line"; then
-        echo "[opts='$*'] [FAIL] '$path' is not a dataset but has a DS marker"
-    elif is_dataset "$path" && has_ds_marker "$line"; then
+    if is_dataset "$path" && has_ds_marker "$line"; then
         echo "[opts='$*'] [OK]   '$path' is a dataset and has a DS marker"
     elif ! is_dataset "$path" && ! has_ds_marker "$line"; then
         echo "[opts='$*'] [OK]   '$path' is not a dataset and has no DS marker"
+    elif is_dataset "$path" && ! has_ds_marker "$line"; then
+        >&2 echo "[opts='$*'] [FAIL] '$path' is dataset but has no DS marker"
+    elif ! is_dataset "$path" && has_ds_marker "$line"; then
+        >&2 echo "[opts='$*'] [FAIL] '$path' is not a dataset but has a DS marker"
     fi
 done
