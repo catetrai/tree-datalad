@@ -19,7 +19,7 @@ has_ds_marker() {
 
 pass() {
     local msg="$1"
-    echo "[opts='${opts[*]}'] [OK]  $msg"
+    echo "[opts='${opts[*]}'] [OK]    $msg"
 }
 
 fail() {
