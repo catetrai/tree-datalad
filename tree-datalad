@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-function usage() {
+usage() {
     cat <<EOF
 
 Usage: $(basename "$0") [-h] [TREE_OPTS ...]
@@ -47,14 +47,14 @@ while IFS=$'\n' read -r line; do
     )"
 
     # if there's no path (e.g. whitespace), just print raw tree output
-    if ! [ -e "$path" ]; then
+    if ! [[ -e "$path" ]]; then
         echo "${line}"
         continue
     fi
 
     # if is dataset, set the DS marker
     marker=''
-    if [ -f "$path"/.datalad/config ]; then
+    if [[ -f "$path"/.datalad/config ]]; then
         marker="$ds_marker"
     fi
 
