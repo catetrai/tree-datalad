@@ -75,7 +75,7 @@ run() {
 }
 
 # If the script is being executed (not sourced), run main function
-# If it is sourced, will only export functions without running main
+# If it is sourced, only export functions without running main
 # see: https://stackoverflow.com/a/2942183
 if [[ "$(basename "$0")" = "tree-datalad" ]]; then
     run "$@"
