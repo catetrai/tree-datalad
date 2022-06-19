@@ -2,7 +2,9 @@
 
 set -euo pipefail
 
+opts=("$@")
 marker_regex='  <--\[DS\]$'
+exit_code=0
 
 is_dataset() {
     datalad siblings -d "$1" &>/dev/null
@@ -12,18 +14,29 @@ has_ds_marker() {
     echo "$1" | grep -qE "$marker_regex"
 }
 
+pass() {
+    local msg="$1"
+    echo "[opts='${opts[*]}'] [OK]  $msg"
+}
+
+fail() {
+    local msg="$1"
+    >&2 echo "[opts='${opts[*]}'] [FAIL]  $msg"
+    exit_code=1
+}
+
 # Test that output differs from output of 'tree' only by the marker
 if [[ "$(tree "$@")" = "$(tree-datalad "$@" | sed -E "s/$marker_regex//g")" ]]; then
-    echo "[opts='$*'] [OK]   stripped output of tree-datalad is identical to output of tree"
+    pass "stripped output of tree-datalad is identical to output of tree"
 else
-    >&2 echo "[opts='$*'] [FAIL] stripped output of tree-datalad differs from output of tree"
+    fail "stripped output of tree-datalad differs from output of tree"
 fi
 
 # Test that dataset detection does not change if using short or full paths
 if [[ "$(tree-datalad "$@" | grep -noE "$marker_regex")" = "$(tree-datalad -f "$@" | grep -noE "$marker_regex")" ]]; then
-    echo "[opts='$*'] [OK]   dataset markers are identical with short or full paths (-f)"
+    pass "dataset markers are identical with short or full paths (-f)"
 else
-    >&2 echo "[opts='$*'] [FAIL] dataset markers differ when using short or full paths (-f)"
+    fail "dataset markers differ when using short or full paths (-f)"
 fi
 
 # Test dataset detection by comparing with datalad command
@@ -43,12 +56,14 @@ while IFS=$'\n' read -r line; do
     fi
 
     if is_dataset "$path" && has_ds_marker "$line"; then
-        echo "[opts='$*'] [OK]   '$path' is a dataset and has a DS marker"
+        pass "'$path' is a dataset and has a DS marker"
     elif ! is_dataset "$path" && ! has_ds_marker "$line"; then
-        echo "[opts='$*'] [OK]   '$path' is not a dataset and has no DS marker"
+        pass "'$path' is not a dataset and has no DS marker"
     elif is_dataset "$path" && ! has_ds_marker "$line"; then
-        >&2 echo "[opts='$*'] [FAIL] '$path' is dataset but has no DS marker"
+        fail "'$path' is dataset but has no DS marker"
     elif ! is_dataset "$path" && has_ds_marker "$line"; then
-        >&2 echo "[opts='$*'] [FAIL] '$path' is not a dataset but has a DS marker"
+        fail "'$path' is not a dataset but has a DS marker"
     fi
 done
+
+exit $exit_code
