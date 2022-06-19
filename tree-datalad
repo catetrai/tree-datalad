@@ -42,7 +42,8 @@ while IFS=$'\n' read -r line; do
             sed -E 's/ -> .*$//g' |  # strip resolved symlink
             sed -E 's/\/$//g' |  # strip directory suffix '/' (if tree -F)
             sed -E 's/[0-9]+ directories, [0-9]+ files//g' |  # strip report line
-            sed -E 's/^.* ([^ ]+)[/=*>|]?$/\1/g'  # extract path
+            sed -E 's/^.*[-─]{2} \[.*\]  (.*)$/\1/g' |  # for tree options with '[]' section
+            sed -E 's/^.*[-─]{2} (.*)$/\1/g'  # for all other tree options
     )"
 
     # if there's no path (e.g. whitespace), just print raw tree output
