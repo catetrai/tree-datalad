@@ -4,11 +4,11 @@ set -euo pipefail
 
 marker_regex='  <--\[DS\]$'
 
-function is_dataset(){
+is_dataset() {
     datalad siblings -d "$1" &>/dev/null
 }
 
-function has_ds_marker() {
+has_ds_marker() {
     echo "$1" | grep -qE "$marker_regex"
 }
 
