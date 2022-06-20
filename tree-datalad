@@ -47,8 +47,11 @@ run() {
 
     # run 'tree' with '-f' option (print full paths)
     # and transform each line
+    line_count=0
     tree -f "$@" |
     while IFS=$'\n' read -r line; do
+        line_count=$((line_count+1))
+
         # extract file/directory path
         path="$(extract_path "$line")"
 
@@ -64,7 +67,9 @@ run() {
             marker="$ds_marker"
         fi
 
-        if $has_full_path; then
+        if $has_full_path || [[ $line_count = 1 ]]; then
+            # The first line is always the path of input directory
+            # (either full or relative, as it was specified in argument)
             echo "${line}${marker}"
         else
             # replace with the basename to revert the effect of '-f'
