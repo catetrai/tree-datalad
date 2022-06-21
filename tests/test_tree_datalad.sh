@@ -48,7 +48,15 @@ tree-datalad -f "${opts[@]}" |
 while IFS=$'\n' read -r line; do
     path="$(extract_path "$line" | sed -E "s/$marker_regex//g")"
 
-    if [[ -z $path ]]; then
+    if [[ -z "$path" ]]; then
+        continue
+    fi
+
+    # Test that path exists
+    if [[ -e "$path" ]]; then
+        pass "valid path '$path'"
+    else
+        fail "nonexistent path '$path'"
         continue
     fi
 
