@@ -30,7 +30,6 @@ TREE_OPTS = [
     ["-F"],
     ["-Q"],
     ["-N"],
-    ["-S"],
     ["--inodes"],
     ["--device"],
     ["--noreport"],
