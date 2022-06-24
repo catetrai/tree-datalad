@@ -18,7 +18,7 @@ def test_extracted_paths_are_valid(tree_datalad_full_paths, extract_path):
 def test_tree_output_differs_only_by_marker(tree, tree_datalad, ds_marker):
     """
     Test that outputs of 'tree' and 'tree-datalad' are identical,
-    bar the dataset marker
+    bar the dataset marker.
     """
     output_tree = "".join(tree)
     output_tree_datalad = "".join(tree_datalad)
@@ -47,6 +47,7 @@ def test_same_ds_markers_if_full_path_option(
 def test_has_marker_if_dataset(
     tree_datalad_full_paths, extract_path, has_dataset_marker
 ):
+    """Test dataset detection (true positive case)"""
     for line in tree_datalad_full_paths:
         path = extract_path(line)
         if is_datalad_dataset(path):
@@ -56,6 +57,7 @@ def test_has_marker_if_dataset(
 def test_has_no_marker_if_not_dataset(
     tree_datalad_full_paths, extract_path, has_dataset_marker
 ):
+    """Test dataset detection (true negative case)"""
     for line in tree_datalad_full_paths:
         path = extract_path(line)
         if not is_datalad_dataset(path):
