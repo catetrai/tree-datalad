@@ -18,7 +18,7 @@ jobs:
       
     - name: Install tree-datalad
       run: |
-        echo "./tree-datalad" >> $GITHUB_PATH
+        echo "$(pwd)" >> $GITHUB_PATH
         
     - name: Set up Conda
       uses: conda-incubator/setup-miniconda@v2
@@ -29,6 +29,11 @@ jobs:
       run: |
         conda install -c conda-forge datalad
         conda install pytest
+        
+    - name: Configure git identity for DataLad
+      run: |
+        git config --global user.name "github runner"
+        git config --global user.email "github@example.com"
 
     - name: Test with pytest
       run: |
