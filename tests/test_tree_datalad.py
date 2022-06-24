@@ -152,9 +152,13 @@ def tree_datalad_full_paths(depth, opts, testdir):
     return _tree_like_command("tree-datalad", depth, opts + ["-f"], testdir)
 
 
-def test_extracted_paths_are_valid(tree_datalad, extract_path):
-    """Test that lines of tree-datalad output contain valid paths"""
-    for line in tree_datalad:
+def test_extracted_paths_are_valid(tree_datalad_full_paths, extract_path):
+    """
+    Test that lines of 'tree-datalad -f' output contain valid paths.
+    We need to use '-f' option to print full paths (otherwise, would need to
+    reconstruct path from the tree hierarchy on multiple lines).
+    """
+    for line in tree_datalad_full_paths:
         path = extract_path(line)
         if path:
             assert Path(path).exists()
@@ -170,6 +174,10 @@ def test_tree_output_differs_only_by_marker(tree, tree_datalad, ds_marker):
 def test_same_ds_markers_if_full_path_option(
     tree_datalad, tree_datalad_full_paths, has_dataset_marker
 ):
+    """
+    Since we test path extraction using the '-f' option,
+    we need to make sure that results would be identical without the '-f' option.
+    """
     marker_indices_regular_paths = [
         ix for ix, line in enumerate(tree_datalad) if has_dataset_marker(line)
     ]
