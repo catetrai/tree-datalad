@@ -170,15 +170,15 @@ def test_tree_output_differs_only_by_marker(tree, tree_datalad, ds_marker):
 def test_same_ds_markers_if_full_path_option(
     tree_datalad, tree_datalad_full_paths, has_dataset_marker
 ):
-    ds_indices_regular_paths = [
+    marker_indices_regular_paths = [
         ix for ix, line in enumerate(tree_datalad) if has_dataset_marker(line)
     ]
-    ds_indices_full_paths = [
+    marker_indices_full_paths = [
         ix
         for ix, line in enumerate(tree_datalad_full_paths)
         if has_dataset_marker(line)
     ]
-    assert ds_indices_regular_paths == ds_indices_full_paths
+    assert marker_indices_regular_paths == marker_indices_full_paths
 
 
 def test_has_marker_if_dataset(tree_datalad, extract_path, has_dataset_marker):
