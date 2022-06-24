@@ -24,7 +24,7 @@ extract_path() {
         sed 's/\x1B\[[0-9;]\{1,\}[A-Za-z]//g' |  # strip color codes
         sed -E 's/ -> .*$//g' |  # strip resolved symlink
         sed -E 's/\/$//g' |  # strip directory suffix '/' (if tree -F)
-        sed -E 's/( +[0-9]+ bytes? used in )?[0-9]+ director(y|ies)(, [0-9]+ files?)?//g' |  # strip report line
+        sed -E 's/^ *( +[0-9]+ bytes? used in )?[0-9]+ director(y|ies)(, [0-9]+ files?)?$//g' |  # strip report line
         sed -E 's/^.*[-─]{2} \[.*\]  (.*)$/\1/g' |  # for tree options with '[]' section
         sed -E 's/^.*[-─]{2} (.*)$/\1/g'  # for all other tree options
 }
