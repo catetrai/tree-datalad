@@ -6,14 +6,6 @@ from datalad.distribution.dataset import require_dataset
 from datalad.support.exceptions import NoDatasetFound
 
 
-def pytest_make_parametrize_id(config, val, argname):
-    if isinstance(val, list):
-        return f"{argname}={val}"
-    if isinstance(val, int):
-        return f"{argname}={val}"
-    # return None to let pytest handle the formatting
-    return None
-
 # --- Tree command options to be tested
 TREE_OPTS = [
     ["-a"],
@@ -194,3 +186,13 @@ def is_datalad_dataset(path: str) -> bool:
         return True
     except NoDatasetFound:
         return False
+
+
+# --- Pytest hooks
+def pytest_make_parametrize_id(config, val, argname):
+    if isinstance(val, list):
+        return f"{argname}={val}"
+    if isinstance(val, int):
+        return f"{argname}={val}"
+    # return None to let pytest handle the formatting
+    return None
