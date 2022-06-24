@@ -39,6 +39,19 @@ TREE_OPTS = [
     ["--du"],
 ]
 
+
+@pytest.fixture(scope="session", params=TREE_OPTS)
+def opts(request):
+    """Parametrized fixture for possible options of 'tree' command to be tested"""
+    return request.param
+
+
+@pytest.fixture(scope="session", params=[1, 4])
+def depth(request):
+    """Parametrized fixture for directory depth levels to be tested (tree option '-L')"""
+    return request.param
+
+
 # --- Fixtures and helper functions for tree-datalad
 @pytest.fixture(scope="session")
 def testdir(tmp_path_factory):
@@ -72,6 +85,49 @@ def testdir(tmp_path_factory):
     yield superds_path
 
     dl.remove(dataset=superds_path, reckless="kill")
+
+
+def _tree_like_command(command: str, depth: int, opts: list, testdir: str) -> list:
+    """
+    Output of 'tree-*' command run with given options and input directory.
+
+    :param command: either 'tree' or 'tree-datalad'
+    :param depth: integer specifying directory hierarchy level ('-L' option of tree)
+    :param opts: list of tree options
+    :param testdir: path to input directory on which to run tree
+    :return: stdout of tree command as list (one item per line of stdout)
+    """
+    depth = str(int(depth))
+    all_options = []
+    all_options.extend(["-I", ".git"])  # ignore .git directory
+    all_options.extend(["-L", depth])  # set hierarchy level
+    all_options.append(opts) if type(opts) is str else all_options.extend(opts)
+    out = subprocess.run(
+        [command, *all_options, testdir],
+        capture_output=True,
+        text=True,
+        encoding="utf-8",
+        check=True,
+    )
+    return out.stdout.splitlines()
+
+
+@pytest.fixture(scope="function")
+def tree(depth, opts, testdir):
+    """Output of 'tree' command run with given options and input directory"""
+    return _tree_like_command("tree", depth, opts, testdir)
+
+
+@pytest.fixture(scope="function")
+def tree_datalad(depth, opts, testdir):
+    """Output of 'tree-datalad' command run with given options and input directory"""
+    return _tree_like_command("tree-datalad", depth, opts, testdir)
+
+
+@pytest.fixture(scope="function")
+def tree_datalad_full_paths(depth, opts, testdir):
+    """Output of 'tree-datalad -f' command run with given options and input directory"""
+    return _tree_like_command("tree-datalad", depth, opts + ["-f"], testdir)
 
 
 @pytest.fixture(scope="session")
@@ -122,61 +178,6 @@ def extract_path(ds_marker):
         return path_raw.removesuffix(ds_marker)  # strip DS marker if present
 
     return _extract_path
-
-
-@pytest.fixture(scope="session", params=TREE_OPTS)
-def opts(request):
-    """Parametrized fixture for possible options of 'tree' command to be tested"""
-    return request.param
-
-
-@pytest.fixture(scope="session", params=[1, 4])
-def depth(request):
-    """Parametrized fixture for directory depth levels to be tested (tree option '-L')"""
-    return request.param
-
-
-def _tree_like_command(command: str, depth: int, opts: list, testdir: str) -> list:
-    """
-    Output of 'tree-*' command run with given options and input directory.
-
-    :param command: either 'tree' or 'tree-datalad'
-    :param depth: integer specifying directory hierarchy level ('-L' option of tree)
-    :param opts: list of tree options
-    :param testdir: path to input directory on which to run tree
-    :return: stdout of tree command as list (one item per line of stdout)
-    """
-    depth = str(int(depth))
-    all_options = []
-    all_options.extend(["-I", ".git"])  # ignore .git directory
-    all_options.extend(["-L", depth])  # set hierarchy level
-    all_options.append(opts) if type(opts) is str else all_options.extend(opts)
-    out = subprocess.run(
-        [command, *all_options, testdir],
-        capture_output=True,
-        text=True,
-        encoding="utf-8",
-        check=True,
-    )
-    return out.stdout.splitlines()
-
-
-@pytest.fixture(scope="function")
-def tree(depth, opts, testdir):
-    """Output of 'tree' command run with given options and input directory"""
-    return _tree_like_command("tree", depth, opts, testdir)
-
-
-@pytest.fixture(scope="function")
-def tree_datalad(depth, opts, testdir):
-    """Output of 'tree-datalad' command run with given options and input directory"""
-    return _tree_like_command("tree-datalad", depth, opts, testdir)
-
-
-@pytest.fixture(scope="function")
-def tree_datalad_full_paths(depth, opts, testdir):
-    """Output of 'tree-datalad -f' command run with given options and input directory"""
-    return _tree_like_command("tree-datalad", depth, opts + ["-f"], testdir)
 
 
 def is_datalad_dataset(path: str) -> bool:
