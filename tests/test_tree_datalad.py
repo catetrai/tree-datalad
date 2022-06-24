@@ -123,7 +123,7 @@ def _tree_like_command(command: str, depth: int, opts: list, testdir: str) -> li
     all_options = []
     all_options.extend(["-I", ".git"])  # ignore .git directory
     all_options.extend(["-L", depth])  # set hierarchy level
-    all_options.extend(opts)
+    all_options.append(opts) if type(opts) is str else all_options.extend(opts)
     out = subprocess.run(
         [command, *all_options, testdir],
         capture_output=True,
