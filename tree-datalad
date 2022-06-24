@@ -29,14 +29,16 @@ extract_path() {
         sed -E 's/^.*[-─]{2} (.*)$/\1/g'  # for all other tree options
 }
 
+ds_marker() {
+    # marker to append to the line of 'tree' output if it is a dataset
+    echo '  <--[DS]'
+}
+
 run() {
     if [[ "$1" = '-h' ]]; then
         usage
         exit 0
     fi
-
-    # marker to append to the line of 'tree' output if it is a dataset
-    ds_marker='  <--[DS]'
 
     # check if 'tree' was called with option '-f' (to print full path)
     # note the quick'n'dirty parsing of single option
@@ -64,7 +66,7 @@ run() {
         # if is dataset, set the DS marker
         marker=''
         if [[ -f "$path"/.datalad/config ]]; then
-            marker="$ds_marker"
+            marker="$(ds_marker)"
         fi
 
         if $has_full_path || [[ $line_count = 1 ]]; then
