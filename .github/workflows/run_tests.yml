@@ -21,10 +21,9 @@ jobs:
         echo "./tree-datalad" >> $GITHUB_PATH
         
     - name: Set up Conda
-    - uses: conda-incubator/setup-miniconda@v2
-        with:
-          auto-update-conda: true
-          python-version: "3.9"
+      uses: conda-incubator/setup-miniconda@v2
+      with:
+        python-version: "3.9"
     
     - name: Install dependencies
       run: |
