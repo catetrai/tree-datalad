@@ -6,30 +6,13 @@ from datalad.distribution.dataset import require_dataset
 from datalad.support.exceptions import NoDatasetFound
 
 
-def is_datalad_dataset(path: str) -> bool:
-    try:
-        require_dataset(path, check_installed=True)
-        return True
-    except NoDatasetFound:
-        return False
-
-
-@pytest.fixture(scope="session")
-def has_dataset_marker(ds_marker):
-    """Function to check if tree output line has been marked as dataset"""
-
-    def _has_dataset_marker(line: str) -> bool:
-        return line.endswith(ds_marker)
-
-    return _has_dataset_marker
-
-
 @pytest.fixture(scope="session")
 def testdir(tmp_path_factory):
     """
-    Creates a temporary directory tree on which to run the 'tree' and 'tree-datalad' commands.
-    Uses pytest's `tmp_path_factory` session fixture to create a temp dir that will be deleted
-    at the end of the test session.
+    Creates a temporary directory tree on which to run the
+    'tree' and 'tree-datalad' commands.
+    Uses pytest's `tmp_path_factory` session fixture to create a
+    temp dir that will be deleted at the end of the test session.
     """
     temp_dir_name = "tree_datalad"
     temp_dir = tmp_path_factory.mktemp(temp_dir_name)
@@ -57,19 +40,35 @@ def testdir(tmp_path_factory):
     dl.remove(dataset=superds_path, reckless="kill")
 
 
-@pytest.fixture(scope="session", params=[["-a"], ["-f"], ["--du"]])
-def opts(request):
-    """Parametrized fixture for possible options of 'tree' command (only the subset we want to test)"""
-    return request.param
+@pytest.fixture(scope="session")
+def ds_marker():
+    """
+    Returns marker appended to dataset paths in the output of 'tree-datalad'.
+    Calls the function from the tree-datalad shell script by sourcing the script.
+    """
+    function_name = "ds_marker"  # shell function from tree-datalad script
+    out = subprocess.run(
+        f"bash -c 'source tree-datalad && {function_name}'",
+        shell=True,
+        capture_output=True,
+        text=True,
+        encoding="utf-8",
+        check=True,
+    )
+    return out.stdout.splitlines()[0]
 
 
-@pytest.fixture(scope="session", params=[1, 4])
-def depth(request):
-    """Parametrized fixture for directory depth levels to be tested"""
-    return request.param
+@pytest.fixture(scope="session")
+def has_dataset_marker(ds_marker):
+    """Function to check if tree output line has been marked as dataset"""
+
+    def _has_dataset_marker(line: str) -> bool:
+        return line.endswith(ds_marker)
+
+    return _has_dataset_marker
 
 
-@pytest.fixture(scope="function")
+@pytest.fixture(scope="session")
 def extract_path(ds_marker):
     """
     Function to extract path from line of 'tree'/'tree-datalad' output.
@@ -91,22 +90,16 @@ def extract_path(ds_marker):
     return _extract_path
 
 
-@pytest.fixture(scope="session")
-def ds_marker():
-    """
-    Returns marker appended to dataset paths in the output of 'tree-datalad'.
-    Calls the function from the tree-datalad shell script by sourcing the script.
-    """
-    function_name = "ds_marker"  # shell function from tree-datalad script
-    out = subprocess.run(
-        f"bash -c 'source tree-datalad && {function_name}'",
-        shell=True,
-        capture_output=True,
-        text=True,
-        encoding="utf-8",
-        check=True,
-    )
-    return out.stdout.splitlines()[0]
+@pytest.fixture(scope="session", params=[["-a"], ["-f"], ["--du"]])
+def opts(request):
+    """Parametrized fixture for possible options of 'tree' command to be tested"""
+    return request.param
+
+
+@pytest.fixture(scope="session", params=[1, 4])
+def depth(request):
+    """Parametrized fixture for directory depth levels to be tested (tree option '-L')"""
+    return request.param
 
 
 def _tree_like_command(command: str, depth: int, opts: list, testdir: str) -> list:
@@ -152,6 +145,15 @@ def tree_datalad_full_paths(depth, opts, testdir):
     return _tree_like_command("tree-datalad", depth, opts + ["-f"], testdir)
 
 
+def is_datalad_dataset(path: str) -> bool:
+    """Function to check if a given path is a dataset using the DataLad API"""
+    try:
+        require_dataset(path, check_installed=True)
+        return True
+    except NoDatasetFound:
+        return False
+
+
 def test_extracted_paths_are_valid(tree_datalad_full_paths, extract_path):
     """
     Test that lines of 'tree-datalad -f' output contain valid paths.
@@ -165,6 +167,10 @@ def test_extracted_paths_are_valid(tree_datalad_full_paths, extract_path):
 
 
 def test_tree_output_differs_only_by_marker(tree, tree_datalad, ds_marker):
+    """
+    Test that outputs of 'tree' and 'tree-datalad' are identical,
+    bar the dataset marker
+    """
     output_tree = "".join(tree)
     output_tree_datalad = "".join(tree_datalad)
     output_tree_datalad_stripped = output_tree_datalad.replace(ds_marker, "")
