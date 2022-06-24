@@ -189,15 +189,19 @@ def test_same_ds_markers_if_full_path_option(
     assert marker_indices_regular_paths == marker_indices_full_paths
 
 
-def test_has_marker_if_dataset(tree_datalad, extract_path, has_dataset_marker):
-    for line in tree_datalad:
+def test_has_marker_if_dataset(
+    tree_datalad_full_paths, extract_path, has_dataset_marker
+):
+    for line in tree_datalad_full_paths:
         path = extract_path(line)
         if is_datalad_dataset(path):
             assert has_dataset_marker(line)
 
 
-def test_has_no_marker_if_not_dataset(tree_datalad, extract_path, has_dataset_marker):
-    for line in tree_datalad:
+def test_has_no_marker_if_not_dataset(
+    tree_datalad_full_paths, extract_path, has_dataset_marker
+):
+    for line in tree_datalad_full_paths:
         path = extract_path(line)
         if not is_datalad_dataset(path):
             assert not has_dataset_marker(line)
