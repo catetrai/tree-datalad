@@ -78,7 +78,7 @@ def extract_path(ds_marker):
 
     def _extract_path(line: str) -> str:
         out = subprocess.run(
-            f"bash -c 'source tree-datalad && extract_path {line}'",
+            f"bash -c \"source tree-datalad && extract_path '{line}'\"",
             shell=True,
             capture_output=True,
             text=True,
