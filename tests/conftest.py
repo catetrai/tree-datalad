@@ -6,7 +6,6 @@ from datalad.distribution.dataset import require_dataset
 from datalad.support.exceptions import NoDatasetFound
 
 
-# --- Pytest hooks
 def pytest_make_parametrize_id(config, val, argname):
     if isinstance(val, list):
         return f"{argname}={val}"
@@ -15,6 +14,38 @@ def pytest_make_parametrize_id(config, val, argname):
     # return None to let pytest handle the formatting
     return None
 
+# --- Tree command options to be tested
+TREE_OPTS = [
+    ["-a"],
+    ["-c"],
+    ["-d"],
+    ["-f"],
+    ["-g"],
+    ["-h"],
+    ["-i"],
+    ["-l"],
+    ["-n"],
+    ["-p"],
+    ["-q"],
+    ["-r"],
+    ["-s"],
+    ["-t"],
+    ["-u"],
+    ["-v"],
+    ["-A"],
+    ["-C"],
+    ["-D"],
+    ["-F"],
+    ["-Q"],
+    ["-N"],
+    ["-S"],
+    ["--inodes"],
+    ["--device"],
+    ["--noreport"],
+    ["--dirsfirst"],
+    ["--prune"],
+    ["--du"],
+]
 
 # --- Fixtures and helper functions for tree-datalad
 @pytest.fixture(scope="session")
@@ -101,7 +132,7 @@ def extract_path(ds_marker):
     return _extract_path
 
 
-@pytest.fixture(scope="session", params=[["-a"], ["-f"], ["--du"]])
+@pytest.fixture(scope="session", params=TREE_OPTS)
 def opts(request):
     """Parametrized fixture for possible options of 'tree' command to be tested"""
     return request.param
