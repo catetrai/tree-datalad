@@ -57,7 +57,7 @@ def testdir(tmp_path_factory):
     dl.remove(dataset=superds_path, reckless="kill")
 
 
-@pytest.fixture(scope="session", params=["-a", "-f", "--du"])
+@pytest.fixture(scope="session", params=[["-a"], ["-f"], ["--du"]])
 def opts(request):
     """Parametrized fixture for possible options of 'tree' command (only the subset we want to test)"""
     return request.param
@@ -149,7 +149,7 @@ def tree_datalad(depth, opts, testdir):
 @pytest.fixture(scope="function")
 def tree_datalad_full_paths(depth, opts, testdir):
     """Output of 'tree-datalad -f' command run with given options and input directory"""
-    return _tree_like_command("tree-datalad", depth, opts + "-f", testdir)
+    return _tree_like_command("tree-datalad", depth, opts + ["-f"], testdir)
 
 
 def test_extracted_paths_are_valid(tree_datalad, extract_path):
