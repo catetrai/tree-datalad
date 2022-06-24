@@ -25,8 +25,8 @@ extract_path() {
         sed -E 's/ -> .*$//g' |  # strip resolved symlink
         sed -E 's/\/$//g' |  # strip directory suffix '/' (if tree -F)
         sed -E 's/^ *( +[0-9]+ bytes? used in )?[0-9]+ director(y|ies)(, [0-9]+ files?)?$//g' |  # strip report line
-        sed -E 's/^.*[-─]{2} \[.*\]  (.*)$/\1/g' |  # for tree options with '[]' section
-        sed -E 's/^.*[-─]{2} (.*)$/\1/g'  # for all other tree options
+        sed -E 's/^.*([-──]{2} |\x1b\(B)\[.*\]  (.*)$/\2/g' |  # for tree options with '[]' section
+        sed -E 's/^.*([-──]{2} |\x1b\(B)(.*)$/\2/g'  # for all other tree options
 }
 
 ds_marker() {
