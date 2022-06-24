@@ -37,5 +37,11 @@ jobs:
 
     - name: Test with pytest
       run: |
-        pytest
+        pytest --disable-warnings --html=tests/output/report.html
+        
+    - name: Archive test results
+      uses: actions/upload-artifact@v3
+      with:
+        name: test-results
+        path: tests/output/*
 
