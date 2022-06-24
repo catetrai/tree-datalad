@@ -1,4 +1,4 @@
-import os
+from pathlib import Path
 import subprocess
 import pytest
 from datalad import api as dl
@@ -34,14 +34,26 @@ def testdir(tmp_path_factory):
     temp_dir_name = "tree_datalad"
     temp_dir = tmp_path_factory.mktemp(temp_dir_name)
 
-    superds_path = os.path.join(str(temp_dir.absolute()), "superds")
+    superds_path = Path(temp_dir.absolute(), "superds")
     superds = dl.create(path=superds_path, cfg_proc="text2git")
 
-    subds_path = os.path.join(str(temp_dir.absolute()), "subds")
+    subds_path = Path(superds_path.absolute(), "subds")
     subds = dl.create(dataset=superds, path=subds_path, cfg_proc="text2git")
 
-    os.makedirs()
+    subsubdir_path = Path(temp_dir, "subdir1", "subsubdir1")
+    Path.mkdir(subsubdir_path, parents=True)
+
+    Path(subds_path, "annexed-file.dat").write_bytes(b"\x01")
+    Path(subds_path, "git-file-subds.txt").write_text(
+        "regular file in subds", encoding="utf-8"
+    )
+    Path(subsubdir_path, "git-file-subdir.txt").write_text(
+        "regular file in subdir", encoding="utf-8"
+    )
+    dl.save(dataset=superds, recursive=True)
+
     yield
+
     dl.remove(dataset=superds_path, reckless="kill")
 
 
@@ -145,7 +157,7 @@ def test_extracted_paths_are_valid(tree_datalad, extract_path):
     for line in tree_datalad:
         path = extract_path(line)
         if path:
-            assert os.path.exists(path)
+            assert Path(path).exists()
 
 
 def test_tree_output_differs_only_by_marker(tree, tree_datalad, ds_marker):
