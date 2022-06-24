@@ -52,7 +52,7 @@ def testdir(tmp_path_factory):
     )
     dl.save(dataset=superds, recursive=True)
 
-    yield
+    yield superds_path
 
     dl.remove(dataset=superds_path, reckless="kill")
 
