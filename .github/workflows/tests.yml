@@ -5,26 +5,37 @@ on: pull_request
 jobs:
   test:
 
-    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        os: [ubuntu-latest, macos-latest]
+        tree-version: [tree_1.6.0-1_amd64.deb,tree_1.7.0-3_amd64.deb,tree_1.7.0-5_amd64.deb,tree_1.8.0-1_amd64.deb,tree_2.0.2-1_amd64.deb]
+
+    runs-on: ${{ matrix.os }}
     
     defaults:
       run:
         shell: bash -l {0}
 
     steps:
-    
     - name: Check out repo
       uses: actions/checkout@v3
-      
+
     - name: Install tree-datalad
       run: |
         echo "$(pwd)" >> $GITHUB_PATH
+
+    - name: Install tree on MacOS
+      if: ${{ matrix.os == 'macos-latest' }}
+      run: brew install tree
+
+    - name: Install tree on Linux
+      if: ${{ matrix.os == 'ubuntu-latest' }}
+      run: |
+        tests/utils/install_tree_version.sh ${{ matrix.tree-version }}
         
     - name: Set up Conda
       uses: conda-incubator/setup-miniconda@v2
-      with:
-        python-version: "3.9"
-    
+
     - name: Install dependencies
       run: |
         conda install -c conda-forge datalad
