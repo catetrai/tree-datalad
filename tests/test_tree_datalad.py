@@ -50,7 +50,7 @@ def test_has_marker_if_dataset(
     """Test dataset detection (true positive case)"""
     for line in tree_datalad_full_paths:
         path = extract_path(line)
-        if path and is_datalad_dataset(path):
+        if is_datalad_dataset(path):
             assert has_dataset_marker(line)
 
 
@@ -60,5 +60,5 @@ def test_has_no_marker_if_not_dataset(
     """Test dataset detection (true negative case)"""
     for line in tree_datalad_full_paths:
         path = extract_path(line)
-        if path and not is_datalad_dataset(path):
+        if is_datalad_dataset(path):
             assert not has_dataset_marker(line)

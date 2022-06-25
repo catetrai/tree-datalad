@@ -192,9 +192,13 @@ def extract_path(ds_marker):
 def is_datalad_dataset(path: str) -> bool:
     """Function to check if a given path is a dataset using the DataLad API"""
     try:
+        if path is None or path == "":
+            return False
+
+        Path(path).resolve(strict=True)  # raise exception if path does not exist
         require_dataset(path, check_installed=True)
         return True
-    except NoDatasetFound:
+    except (FileNotFoundError, NoDatasetFound):
         return False
 
 
