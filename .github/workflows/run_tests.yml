@@ -37,7 +37,7 @@ jobs:
 
     - name: Test with pytest
       run: |
-        pytest --disable-warnings --html=tests/output/report.html
+        pytest -rA --disable-warnings --html=tests/output/report.html
         
     - name: Archive test results
       if: ${{ always() }}
