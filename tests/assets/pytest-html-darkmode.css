@@ -37,6 +37,9 @@ table {
   padding: 5px;
   border: 1px solid #E6E6E6;
 }
+#environment tr:nth-child(odd) {
+  background-color: #181a1b;
+}
 
 /******************************
  * TEST RESULT COLORS
@@ -98,6 +101,7 @@ span.xpassed,
  * 2. Extra
  *------------------*/
 .log {
+  background-color: #181a1b;
   border: 1px solid #e6e6e6;
   color: #bbb;
   display: block;
