@@ -37,7 +37,10 @@ jobs:
 
     - name: Test with pytest
       run: |
-        pytest -rA --disable-warnings --html=tests/output/report.html
+        pytest -rA \
+            --html=tests/output/report.html \
+            --self-contained-html \
+            --css=tests/assets/pytest-html-darkmode.css
         
     - name: Archive test results
       if: ${{ always() }}
