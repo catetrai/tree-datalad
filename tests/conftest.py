@@ -38,10 +38,15 @@ TREE_OPTS = [
 ]
 
 
-def build_tree_opts_params():
-    """Build combinations of tree opts to be used as pytest parameters"""
+def build_tree_opts_params() -> list:
+    """
+    Build combinations of options of 'tree' command to be used as pytest parameters.
+    Each option combination is a list of option strings.
+    :return: a list of option combination lists
+    """
     params = [[opt] for opt in TREE_OPTS]  # each individual option on its own
     params.append(TREE_OPTS)  # all options combined
+    return params
 
 
 @pytest.fixture(scope="session", params=build_tree_opts_params())
