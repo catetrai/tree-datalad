@@ -1,5 +1,6 @@
 # Custom
 tests/output/
+.DS_Store
 
 # PyCharm
 .idea/
