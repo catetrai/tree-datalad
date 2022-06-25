@@ -8,39 +8,45 @@ from datalad.support.exceptions import NoDatasetFound
 
 # --- Tree command options to be tested
 TREE_OPTS = [
-    ["-a"],
-    ["-c"],
-    ["-d"],
-    ["-f"],
-    ["-g"],
-    ["-h"],
-    ["-i"],
-    ["-l"],
-    ["-n"],
-    ["-p"],
-    ["-q"],
-    ["-r"],
-    ["-s"],
-    ["-t"],
-    ["-u"],
-    ["-v"],
-    ["-A"],
-    ["-C"],
-    ["-D"],
-    ["-F"],
-    ["-N"],
-    ["--inodes"],
-    ["--device"],
-    ["--noreport"],
-    ["--dirsfirst"],
-    ["--prune"],
-    ["--du"],
+    "-a",
+    "-c",
+    "-d",
+    "-f",
+    "-g",
+    "-h",
+    "-i",
+    "-l",
+    "-n",
+    "-p",
+    "-q",
+    "-r",
+    "-s",
+    "-t",
+    "-u",
+    "-v",
+    "-A",
+    "-C",
+    "-D",
+    "-F",
+    "-N",
+    "--inodes",
+    "--device",
+    "--noreport",
+    "--dirsfirst",
+    "--prune",
+    "--du",
 ]
 
 
-@pytest.fixture(scope="session", params=TREE_OPTS)
+def build_tree_opts_params():
+    """Build combinations of tree opts to be used as pytest parameters"""
+    params = [[opt] for opt in TREE_OPTS]  # each individual option on its own
+    params.append(TREE_OPTS)  # all options combined
+
+
+@pytest.fixture(scope="session", params=build_tree_opts_params())
 def opts(request):
-    """Parametrized fixture for possible options of 'tree' command to be tested"""
+    """Parametrized fixture for options of 'tree' command to be tested"""
     return request.param
 
 
