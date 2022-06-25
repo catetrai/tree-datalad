@@ -8,39 +8,49 @@ from datalad.support.exceptions import NoDatasetFound
 
 # --- Tree command options to be tested
 TREE_OPTS = [
-    ["-a"],
-    ["-c"],
-    ["-d"],
-    ["-f"],
-    ["-g"],
-    ["-h"],
-    ["-i"],
-    ["-l"],
-    ["-n"],
-    ["-p"],
-    ["-q"],
-    ["-r"],
-    ["-s"],
-    ["-t"],
-    ["-u"],
-    ["-v"],
-    ["-A"],
-    ["-C"],
-    ["-D"],
-    ["-F"],
-    ["-N"],
-    ["--inodes"],
-    ["--device"],
-    ["--noreport"],
-    ["--dirsfirst"],
-    ["--prune"],
-    ["--du"],
+    "-a",
+    "-c",
+    "-d",
+    "-f",
+    "-g",
+    "-h",
+    "-l",
+    "-n",
+    "-p",
+    "-q",
+    "-r",
+    "-s",
+    "-t",
+    "-u",
+    "-v",
+    "-A",
+    "-C",
+    "-D",
+    "-F",
+    "-N",
+    "--inodes",
+    "--device",
+    "--noreport",
+    "--dirsfirst",
+    "--prune",
+    "--du",
 ]
 
 
-@pytest.fixture(scope="session", params=TREE_OPTS)
+def build_tree_opts_params() -> list:
+    """
+    Build combinations of options of 'tree' command to be used as pytest parameters.
+    Each option combination is a list of option strings.
+    :return: a list of option combination lists
+    """
+    params = [[opt] for opt in TREE_OPTS]  # each individual option on its own
+    params.append(TREE_OPTS)  # all options combined
+    return params
+
+
+@pytest.fixture(scope="session", params=build_tree_opts_params())
 def opts(request):
-    """Parametrized fixture for possible options of 'tree' command to be tested"""
+    """Parametrized fixture for options of 'tree' command to be tested"""
     return request.param
 
 
@@ -107,6 +117,9 @@ def _tree_like_command(command: str, depth: int, opts: list, testdir: str) -> li
         encoding="utf-8",
         check=True,
     )
+    print(f"Command:  {' '.join([command, *all_options, str(testdir)])}")
+    print(f"Output:")
+    print(out.stdout)
     return out.stdout.splitlines()
 
 
@@ -181,9 +194,13 @@ def extract_path(ds_marker):
 def is_datalad_dataset(path: str) -> bool:
     """Function to check if a given path is a dataset using the DataLad API"""
     try:
+        if path is None or path == "":
+            return False
+
+        Path(path).resolve(strict=True)  # raise exception if path does not exist
         require_dataset(path, check_installed=True)
         return True
-    except NoDatasetFound:
+    except (FileNotFoundError, NoDatasetFound):
         return False
 
 
