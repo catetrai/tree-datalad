@@ -117,7 +117,7 @@ def _tree_like_command(command: str, depth: int, opts: list, testdir: str) -> li
         encoding="utf-8",
         check=True,
     )
-    print(f"Command:  {' '.join([command, *all_options, testdir])}")
+    print(f"Command:  {' '.join([command, *all_options, str(testdir)])}")
     print(f"Output:")
     print(out.stdout)
     return out.stdout.splitlines()
