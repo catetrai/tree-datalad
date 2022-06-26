@@ -52,7 +52,7 @@ run() {
     # and transform each line
     line_count=0
     tree -f "$@" |
-    while IFS=$'\n' read -r line; do
+    while read -r line; do
         line_count=$((line_count+1))
 
         # extract file/directory path
