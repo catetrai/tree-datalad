@@ -7,13 +7,14 @@ jobs:
 
     strategy:
       matrix:
-        os: [ubuntu-latest]
+        os: [ubuntu-latest, ubuntu-18.04]
         tree-version: [tree_1.6.0-1_amd64.deb,tree_1.7.0-3_amd64.deb,tree_1.7.0-5_amd64.deb,tree_1.8.0-1_amd64.deb,tree_2.0.2-1_amd64.deb]
         include:
           # MacOS can only install latest tree version,
           # so we configure only a single job for it
           # (no cross-product with 'tree-version')
           - os: macos-latest
+          - os: macos-10.15
 
     runs-on: ${{ matrix.os }}
     # do not cancel other queued jobs in the matrix if tree 2.0.2 fails.
@@ -33,12 +34,12 @@ jobs:
       run: echo "$(pwd)" >> $GITHUB_PATH
 
     - name: Install tree on Linux
-      if: ${{ matrix.os == 'ubuntu-latest' }}
+      if: ${{ startsWith(matrix.os, 'ubuntu') }}
       run: |
         tests/utils/install_tree_version.sh ${{ matrix.tree-version }}
 
     - name: Install tree on MacOS
-      if: ${{ matrix.os == 'macos-latest' }}
+      if: ${{ startsWith(matrix.os, 'macos') }}
       run: |
         brew install tree
         tree --version
@@ -53,7 +54,7 @@ jobs:
 
     - name: Install git-annex on MacOS
       # conda install of DataLad does not include git-annex
-      if: ${{ matrix.os == 'macos-latest' }}
+      if: ${{ startsWith(matrix.os, 'macos') }}
       run: brew install git-annex
         
     - name: Configure git identity for DataLad
