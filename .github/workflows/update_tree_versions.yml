@@ -19,9 +19,7 @@ jobs:
     - name: Create PR with update  # will not create PR if no changes
       uses: peter-evans/create-pull-request@v4
       with:
-        add-paths: '.github/workflows/*.yml'
+        add-paths: .github/workflows/*.yml
         branch: auto-update-tree-version
-        commit-message: [create-pull-request] automated update of available tree packages
+        commit-message: '[create-pull-request] automated update of available tree packages'
         title: Auto update of available tree packages
-
-
