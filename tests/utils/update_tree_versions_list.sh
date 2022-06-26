@@ -28,7 +28,7 @@ find_github_workflow_config_file() {
 update_workflow_config() {
     # Modify the .github/workflow/*.yml file(s) in-place
     # with updated package names
-    sed -i -E "/${config_regex}/ s|\[.*\]|\[$(list_pkg_versions)\]|g" \
+    sed -i -E "/${config_regex}/ s|\[.*\]|\[test1,test2\]|g" \
         "$(find_github_workflow_config_file)"
 }
 
