@@ -21,12 +21,12 @@ EOF
 extract_path() {
     # extract file/directory path from line of 'tree' output
     echo "$1" |
-        sed $'s/\x1B\[[0-9;]\{1,\}[A-Za-z]//g' |  # strip color codes
+        sed $'s/\x1B\[[0-9;]\{1,\}[A-Za-z]//g;' |  # strip color codes
         sed -E 's/ -> .*$//g' |  # strip resolved symlink
         sed -E 's/\/$//g' |  # strip directory suffix '/' (if tree -F)
         sed -E 's/^ *( +[0-9]+ bytes? used in )?[0-9]+ director(y|ies)(, [0-9]+ files?)?$//g' |  # strip report line
-        sed -E 's/^.*([-──]{2} |\x1b\(B)?\[.*\]  (.*)$/\2/g' |  # for tree options with '[]' section
-        sed -E 's/^.*([-──]{2} |\x1b\(B)(.*)$/\2/g'  # for all other tree options
+        sed -E 's/^.*([-──]{2} |'$'\x1B''\(B)?\[.*\]  (.*)$/\2/g' |  # for tree options with '[]' section
+        sed -E 's/^.*([-──]{2} |'$'\x1B''\(B)(.*)$/\2/g'  # for all other tree options
 }
 
 ds_marker() {
