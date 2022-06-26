@@ -72,36 +72,35 @@ run() {
     # run tree with '-f' option (print full paths)
     # and transform each line
     line_count=0
-    while IFS=$'\n' read -r line; do
-        line_count=$((line_count+1))
-
-        # extract file/directory path
-        path="$(extract_path "$line")"
-
-        # if there's no path (e.g. whitespace), just print raw tree output
-        if ! [[ -e "$path" ]]; then
-            echo "$line"
-            continue
-        fi
-
-        # if is dataset, append the DS marker
-        marker=''
-        if [[ -f "$path"/.datalad/config ]]; then
-            marker="$(ds_marker)"
-        fi
-
-        if $has_full_path || [[ $line_count = 1 ]]; then
-            # first line is always the path of input directory (either full
-            # or relative, as it was specified in the 'tree' invocation)
-            echo "${line}${marker}"
-        else
-            # replace with the basename to revert the effect of '-f'
-            path_basename="$(basename $path)"
-            echo "${line//$path/$path_basename}${marker}"
-        fi
-    done
     tree -f $color_flag "$@" |
+        while IFS=$'\n' read -r line; do
+            line_count=$((line_count+1))
+
+            # extract file/directory path
+            path="$(extract_path "$line")"
+
+            # if there's no path (e.g. whitespace), just print raw tree output
+            if ! [[ -e "$path" ]]; then
+                echo "$line"
+                continue
+            fi
+
+            # if is dataset, append the DS marker
+            marker=''
+            if [[ -f "$path"/.datalad/config ]]; then
                 ds_marker > /dev/null  # just set the 'marker' variable
+            fi
+
+            if $has_full_path || [[ $line_count = 1 ]]; then
+                # first line is always the path of input directory (either full
+                # or relative, as it was specified in the 'tree' invocation)
+                echo "${line}${marker}"
+            else
+                # replace with the basename to revert the effect of '-f'
+                path_basename="$(basename "$path")"
+                echo "${line//$path/$path_basename}${marker}"
+            fi
+        done
 }
 
 # If the script is being executed (not sourced), run main function.
