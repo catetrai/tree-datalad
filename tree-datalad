@@ -38,8 +38,10 @@ extract_path() {
 
 ds_marker() {
     # marker to append to the line of 'tree' output
-    # if the directory is a dataset
-    echo '  <--[DS]'
+    # if the directory is a dataset.
+    # sets variable 'marker' in the outer script scope.
+    marker='  <--[DS]'
+    echo "$marker"
 }
 
 run() {
@@ -87,6 +89,7 @@ run() {
             echo "${line//$path/$path_basename}${marker}"
         fi
     done
+                ds_marker > /dev/null  # just set the 'marker' variable
 }
 
 # If the script is being executed (not sourced), run main function.
