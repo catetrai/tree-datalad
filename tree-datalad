@@ -30,7 +30,8 @@ extract_path() {
 }
 
 ds_marker() {
-    # marker to append to the line of 'tree' output if it is a dataset
+    # marker to append to the line of 'tree' output
+    # if the directory is a dataset
     echo '  <--[DS]'
 }
 
@@ -63,15 +64,15 @@ run() {
             continue
         fi
 
-        # if is dataset, set the DS marker
+        # if is dataset, append the DS marker
         marker=''
         if [[ -f "$path"/.datalad/config ]]; then
             marker="$(ds_marker)"
         fi
 
         if $has_full_path || [[ $line_count = 1 ]]; then
-            # The first line is always the path of input directory
-            # (either full or relative, as it was specified in argument)
+            # first line is always the path of input directory (either full
+            # or relative, as it was specified in the 'tree' invocation)
             echo "${line}${marker}"
         else
             # replace with the basename to revert the effect of '-f'
@@ -81,8 +82,8 @@ run() {
     done
 }
 
-# If the script is being executed (not sourced), run main function
-# If it is sourced, only export functions without running main
+# If the script is being executed (not sourced), run main function.
+# If it is sourced, only export functions without running main.
 # see: https://stackoverflow.com/a/2942183
 if [[ "$(basename "$0")" = "tree-datalad" ]]; then
     run "$@"
