@@ -50,8 +50,7 @@ run() {
         exit 0
     fi
 
-    # check if 'tree' was called with option '-f' (to print full path)
-    # note the quick'n'dirty parsing of single option
+    # check if tree was called with option '-f' (to print full path)
     has_full_path=false
     if echo "$@" | grep -qE '^-f| +-f|^-[^- ]+f| +-[^- ]+f'; then
         has_full_path=true
