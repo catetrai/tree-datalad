@@ -1,6 +1,7 @@
 name: update tree versions
 
 on:
+  workflow_dispatch:  # trigger manually from UI
   schedule:
     - cron: '0 18 1 * *'  # once a month
 
