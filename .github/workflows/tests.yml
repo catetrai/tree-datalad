@@ -1,0 +1,79 @@
+name: tests
+
+on: pull_request
+
+jobs:
+  test:
+
+    strategy:
+      matrix:
+        os: [ubuntu-latest, ubuntu-18.04]
+        tree-version: [tree_1.6.0-1_amd64.deb,tree_1.7.0-3_amd64.deb,tree_1.7.0-5_amd64.deb,tree_1.8.0-1_amd64.deb,tree_2.0.2-1_amd64.deb]
+        include:
+          # MacOS can only install latest tree version,
+          # so we configure only a single job for it
+          # (no cross-product with 'tree-version')
+          - os: macos-latest
+          - os: macos-10.15
+
+    runs-on: ${{ matrix.os }}
+    # do not cancel other queued jobs in the matrix if tree 2.0.2 fails.
+    # ATM it cannot be installed on ubuntu 20.04 because of
+    # missing kernel dependency (libc6 >= 2.34)
+    continue-on-error: ${{ matrix.tree-version == 'tree_2.0.2-1_amd64.deb' }}
+    
+    defaults:
+      run:
+        shell: bash -l {0}
+
+    steps:
+    - name: Check out repo
+      uses: actions/checkout@v3
+
+    - name: Install tree-datalad
+      run: echo "$(pwd)" >> $GITHUB_PATH
+
+    - name: Install tree on Linux
+      if: ${{ startsWith(matrix.os, 'ubuntu') }}
+      run: |
+        tests/utils/install_tree_version.sh ${{ matrix.tree-version }}
+
+    - name: Install tree on MacOS
+      if: ${{ startsWith(matrix.os, 'macos') }}
+      run: |
+        brew install tree
+        tree --version
+
+    - name: Set up Conda
+      uses: conda-incubator/setup-miniconda@v2
+
+    - name: Install dependencies
+      run: |
+        conda install -c conda-forge datalad
+        conda install pytest pytest-html
+
+    - name: Install git-annex on MacOS
+      # conda install of DataLad does not include git-annex
+      if: ${{ startsWith(matrix.os, 'macos') }}
+      run: brew install git-annex
+        
+    - name: Configure git identity for DataLad
+      # prevents DataLad warnings about missing git identity
+      run: |
+        git config --global user.name "github runner"
+        git config --global user.email "github@example.com"
+
+    - name: Test with pytest
+      run: |
+        pytest \
+          --html=tests/output/report.html \
+          --self-contained-html \
+          --css=tests/assets/pytest-html-darkmode.css
+        
+    - name: Archive test results
+      if: ${{ always() }}
+      uses: actions/upload-artifact@v3
+      with:
+        name: test-results_${{ matrix.tree-version }}_${{ matrix.os }}
+        path: tests/output/
+
