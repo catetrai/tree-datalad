@@ -38,8 +38,12 @@ packages="$(list_pkg_versions)"
 echo "$packages"
 
 echo
-echo "Updating list of packages in file: $(find_github_workflow_config_file)"
+file="$(find_github_workflow_config_file)"
+echo "Updating list of packages in file: $file"
 update_workflow_config
 
-echo
-git --no-pager diff "$(find_github_workflow_config_file)"
+if git diff --exit-code "$file"; then
+    echo "No change - nothing to do."
+else
+    git --no-pager diff "$file"
+fi
