@@ -73,6 +73,6 @@ jobs:
       if: ${{ always() }}
       uses: actions/upload-artifact@v3
       with:
-        name: test-results_${{ matrix.os }}_${{ matrix.tree-version }}
+        name: test-results_${{ matrix.tree-version }}_${{ matrix.os }}
         path: tests/output/
 
