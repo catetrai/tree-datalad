@@ -32,4 +32,14 @@ update_workflow_config() {
         "$(find_github_workflow_config_file)"
 }
 
+echo
+echo "Retrieving list of available 'tree' packages for ubuntu ..."
+packages="$(list_pkg_versions)"
+echo "$packages"
+
+echo
+echo "Updating list of packages in file: $(find_github_workflow_config_file)"
 update_workflow_config
+
+echo
+git --no-pager diff "$(find_github_workflow_config_file)"
