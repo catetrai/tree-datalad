@@ -20,13 +20,20 @@ EOF
 
 extract_path() {
     # extract file/directory path from line of 'tree' output
+    local strip_color_codes=$'s/\x1B\[[0-9;]\{1,\}[A-Za-z]//g;'
+    local strip_resolved_symlinks='s/ -> .*$//g'
+    local strip_directory_suffix='s/\/$//g'  # if tree -F
+    local strip_report_line='s/^ *( +[0-9]+ bytes? used in )?[0-9]+ director(y|ies)(, [0-9]+ files?)?$//g'
+    local capture_path_with_metadata='s/^.*([-──]{2} |'$'\x1B''\(B)?\[.*\]  (.*)$/\2/g'  # '[]' section
+    local capture_path='s/^.*([-──]{2} |'$'\x1B''\(B)(.*)$/\2/g'  # without '[]' section
+    
     echo "$1" |
-        sed $'s/\x1B\[[0-9;]\{1,\}[A-Za-z]//g;' |  # strip color codes
-        sed -E 's/ -> .*$//g' |  # strip resolved symlink
-        sed -E 's/\/$//g' |  # strip directory suffix '/' (if tree -F)
-        sed -E 's/^ *( +[0-9]+ bytes? used in )?[0-9]+ director(y|ies)(, [0-9]+ files?)?$//g' |  # strip report line
-        sed -E 's/^.*([-──]{2} |'$'\x1B''\(B)?\[.*\]  (.*)$/\2/g' |  # for tree options with '[]' section
-        sed -E 's/^.*([-──]{2} |'$'\x1B''\(B)(.*)$/\2/g'  # for all other tree options
+        sed "$strip_color_codes" |
+        sed -E -e "$strip_resolved_symlinks" \
+            -e "$strip_directory_suffix" \
+            -e "$strip_report_line" \
+            -e "$capture_path_with_metadata" \
+            -e "$capture_path"
 }
 
 ds_marker() {
