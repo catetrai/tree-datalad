@@ -16,6 +16,10 @@ jobs:
           - os: macos-latest
 
     runs-on: ${{ matrix.os }}
+    # do not cancel other queued jobs in the matrix if tree 2.0.2 fails.
+    # ATM it cannot be installed on ubuntu 20.04 because of
+    # missing kernel dependency (libc6 >= 2.34)
+    continue-on-error: ${{ matrix.tree-version == 'tree_2.0.2-1_amd64.deb' }}
     
     defaults:
       run:
