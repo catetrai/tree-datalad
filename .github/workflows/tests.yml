@@ -63,7 +63,11 @@ jobs:
         git config --global user.email "github@example.com"
 
     - name: Test with pytest
-      run: pytest
+      run: |
+        pytest \
+          --html=tests/output/report.html \
+          --self-contained-html \
+          --css=tests/assets/pytest-html-darkmode.css
         
     - name: Archive test results
       if: ${{ always() }}
