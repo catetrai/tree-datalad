@@ -14,7 +14,6 @@ jobs:
           # so we configure only a single job for it
           # (no cross-product with 'tree-version')
           - os: macos-latest
-          - os: macos-10.15
 
     runs-on: ${{ matrix.os }}
     # do not cancel other queued jobs in the matrix if tree 2.0.2 fails.
