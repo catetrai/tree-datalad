@@ -56,10 +56,22 @@ run() {
         has_full_path=true
     fi
 
-    # run 'tree' with '-f' option (print full paths)
+    # check if tree output should be colorized.
+    # otherwise, if colors are enabled by default (e.g. with LS_COLORS
+    # or CLICOLOR), piping tree output will strip out color codes.
+    color_flag=
+    if {
+        [[ -n "$LS_COLORS" || -n "$CLICOLOR" ]] &&
+        ! echo "$@" | grep -qE '^-n| +-n|^-[^- ]+n| +-[^- ]+n'  # no '-n' opt
+        } ||
+        echo "$@" | grep -qE '^-C| +-C|^-[^- ]+C| +-[^- ]+C'  # '-C' opt
+    then
+        color_flag='-C'
+    fi
+
+    # run tree with '-f' option (print full paths)
     # and transform each line
     line_count=0
-    tree -f "$@" |
     while IFS=$'\n' read -r line; do
         line_count=$((line_count+1))
 
@@ -88,6 +100,7 @@ run() {
             echo "${line//$path/$path_basename}${marker}"
         fi
     done
+    tree -f $color_flag "$@" |
                 ds_marker > /dev/null  # just set the 'marker' variable
 }
 
