@@ -1,0 +1,27 @@
+name: Update list of available tree versions
+
+on:
+  schedule:
+    - cron: '0 18 1 * *'  # once a month
+
+jobs:
+  update:
+
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Check out repo
+      uses: actions/checkout@v3
+
+    - name: Run update
+      run: tests/utils/update_tree_versions_list.sh
+
+    - name: Create PR with update  # will not create PR if no changes
+      uses: peter-evans/create-pull-request@v4
+      with:
+        add-paths: '.github/workflows/*.yml'
+        branch: auto-update-tree-version
+        commit-message: [create-pull-request] automated update of available tree packages
+        title: Auto update of available tree packages
+
+
