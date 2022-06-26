@@ -1,4 +1,4 @@
-name: Update list of available tree versions
+name: update tree versions
 
 on:
   schedule:
