@@ -2,7 +2,8 @@
 
 [![tests](https://github.com/catetrai/tree-datalad/actions/workflows/tests.yml/badge.svg)](https://github.com/catetrai/tree-datalad/actions/workflows/tests.yml)
 
-The `tree` command with added markers for [DataLad](https://github.com/datalad/datalad) datasets. Helps visualize hierarchies of nested datasets.
+A wrapper for the UNIX `tree` command with added markers for [DataLad](https://github.com/datalad/datalad) datasets.
+Helps visualize hierarchies of nested subdatasets and describe dataset layouts.
 
 ## Usage
 
@@ -27,7 +28,7 @@ bids  <--[DS]
     ├── images
 ```
 
-Find datasets at all depths of the current directory tree:
+Find datasets at all depths starting from the current directory:
 
 ```
 ❯ tree-datalad -d -f | grep '\[DS\]'
