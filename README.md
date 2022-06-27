@@ -2,13 +2,15 @@
 
 [![tests](https://github.com/catetrai/tree-datalad/actions/workflows/tests.yml/badge.svg)](https://github.com/catetrai/tree-datalad/actions/workflows/tests.yml)
 
-The `tree` command with added markers for [DataLad](https://github.com/datalad/datalad) dataset.
-
-Helps visualize hierarchies of nested datasets.
+The `tree` command with added markers for [DataLad](https://github.com/datalad/datalad) datasets. Helps visualize hierarchies of nested datasets.
 
 ## Usage
 
-Options are passed to `tree`:
+`tree-datalad` works just like `tree`. You can pass it any `tree` options.
+
+### Examples
+
+View a hierarchy of nested subdatasets in the context of the whole directory layout:
 
 ```
 ❯ tree-datalad -d -L 3 bids
@@ -23,6 +25,16 @@ bids  <--[DS]
 │       └── sub-02
 └── environments  <--[DS]
     ├── images
+```
+
+Find datasets at all depths of the current directory tree:
+
+```
+❯ tree-datalad -d -f | grep '\[DS\]'
+├── ./bids  <--[DS]
+│   │   │   └── ./bids/data/inputs/dicom  <--[DS]
+│   ├── ./bids/environments  <--[DS]
+└── ./dicom  <--[DS]
 ```
 
 ## Requirements
