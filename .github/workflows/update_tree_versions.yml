@@ -24,4 +24,4 @@ jobs:
         add-paths: .github/workflows/*.yml
         branch: auto-update-tree-version
         commit-message: '[auto-create-PR] automated update of available tree packages'
-        title: [auto-create-PR] update available tree packages
+        title: '[auto-create-PR] update available tree packages'
