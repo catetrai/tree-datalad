@@ -28,7 +28,7 @@ find_github_workflow_config_file() {
 update_workflow_config() {
     # Modify the .github/workflow/*.yml file(s) in-place
     # with updated package names
-    sed -i -E "/${config_regex}/ s|\[.*\]|\[test1,test2\]|g" \
+    sed -i -E "/${config_regex}/ s|\[.*\]|\[tree_1.6.0-1_amd64.deb,tree_1.7.0-3_amd64.deb\]|g" \
         "$(find_github_workflow_config_file)"
 }
 
