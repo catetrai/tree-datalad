@@ -28,8 +28,10 @@ find_github_workflow_config_file() {
 update_workflow_config() {
     # Modify the .github/workflow/*.yml file(s) in-place
     # with updated package names
-    sed -i -E "/${config_regex}/ s|\[.*\]|\[$(list_pkg_versions)\]|g" \
-        "$(find_github_workflow_config_file)"
+    local pkg_versions="$1"
+    local config_file="$2"
+    sed -i -E "/${config_regex}/ s|\[.*\]|\[${pkg_versions}\]|g" \
+        "$config_file"
 }
 
 echo
@@ -40,7 +42,7 @@ echo "$packages"
 echo
 file="$(find_github_workflow_config_file)"
 echo "Updating list of packages in file: $file"
-update_workflow_config
+update_workflow_config "$packages" "$file"
 
 if git diff --exit-code "$file"; then
     echo "No change - nothing to do."
