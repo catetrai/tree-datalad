@@ -5,6 +5,12 @@
 A wrapper for the UNIX `tree` command with added markers for [DataLad](https://github.com/datalad/datalad) datasets.
 Helps visualize hierarchies of nested subdatasets and describe dataset layouts.
 
+----
+
+:bulb: **Note:** there is now a native `datalad tree` command, available in the [datalad-next](https://github.com/datalad/datalad-next) extension (>=v0.6.0). See [documentation](http://docs.datalad.org/projects/next/en/latest/generated/man/datalad-tree.html).
+
+----
+
 ## Usage
 
 `tree-datalad` works just like `tree`. You can pass it any `tree` options.
