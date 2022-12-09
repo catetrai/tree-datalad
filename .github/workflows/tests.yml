@@ -8,7 +8,7 @@ jobs:
     strategy:
       matrix:
         os: [ubuntu-latest, ubuntu-18.04]
-        tree-version: [tree_1.6.0-1_amd64.deb,tree_1.7.0-3_amd64.deb,tree_1.7.0-5_amd64.deb,tree_1.8.0-1_amd64.deb,tree_2.0.2-1_amd64.deb,tree_2.0.3-1_amd64.deb]
+        tree-version: [tree_1.6.0-1_amd64.deb,tree_1.7.0-3_amd64.deb,tree_1.7.0-5_amd64.deb,tree_1.8.0-1_amd64.deb,tree_2.0.2-1_amd64.deb,tree_2.0.3-1_amd64.deb,tree_2.0.4-1_amd64.deb]
         include:
           # MacOS can only install latest tree version,
           # so we configure only a single job for it
